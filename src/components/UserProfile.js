@@ -1,21 +1,73 @@
-import React from 'react';
+import React, { useEffect, useState } from "react";
 import {
+  Avatar,
   Box,
   Typography,
   Container,
   CssBaseline,
+  Grid,
+  AppBar,
+  Toolbar,
 } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { ToastContainer } from "react-toastify";
+import { toast } from "react-toastify";
+import { useParams } from "react-router-dom";
+
+import { fetchuser } from "../services/auth.service";
 
 const theme = createTheme();
 
-export function UserProfile(){
-    return (
-        <ThemeProvider theme={theme}>
-          <ToastContainer />
-          <Container component="main" maxWidth="xs">
-            <CssBaseline />
+export function UserProfile() {
+  const { id } = useParams();
+  const [userProfileContent, setUserProfileContent] = useState("");
+  const getUserProfile = () => {
+    fetchuser(id)
+      .then((response) => {
+        if (response.data.status) {
+          setUserProfileContent(response.data.data);
+        } else {
+          toast(response.data.message, {
+            position: "top-right",
+            autoClose: 3000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            type: "error",
+          });
+        }
+      })
+      .catch((error) => {
+        toast(error.message, {
+          position: "top-right",
+          autoClose: 3000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          type: "error",
+        });
+      });
+  };
+
+  useEffect(() => {
+    getUserProfile();
+  }, []);
+
+  return (
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AppBar position="relative">
+        <Toolbar>
+          <Typography variant="h6" color="inherit" noWrap></Typography>
+        </Toolbar>
+      </AppBar>
+      <main>
+        {/* Hero unit */}
+        <Box
+          sx={{
+            bgcolor: "background.paper",
+            pt: 8,
+            pb: 6,
+          }}
+        >
+          <Container maxWidth="sm">
             <Box
               sx={{
                 marginTop: 8,
@@ -25,10 +77,58 @@ export function UserProfile(){
               }}
             >
               <Typography component="h1" variant="h5">
-               Profile
+                <Grid item xs={8}>
+                  <Avatar
+                    alt=""
+                    src={userProfileContent.file_path}
+                    sx={{ width: 100, height: 100 }}
+                  />
+                </Grid>
               </Typography>
             </Box>
+            <Typography
+              component="h1"
+              variant="h2"
+              align="center"
+              color="text.primary"
+              gutterBottom
+            >
+              {userProfileContent.name}
+            </Typography>
+            <Typography
+              variant="h5"
+              align="center"
+              color="text.secondary"
+              paragraph
+            >
+              {userProfileContent.summary}
+            </Typography>
           </Container>
-        </ThemeProvider>
-      );
+        </Box>
+      </main>
+      {/* Footer */}
+      <Box sx={{ bgcolor: 'background.paper', p: 6 }} component="footer">
+        <Typography variant="h6" align="center" gutterBottom>
+          Contact Info
+        </Typography>
+        <Typography
+          variant="subtitle1"
+          align="center"
+          color="text.secondary"
+          component="p"
+        >
+          {userProfileContent.country_code}{userProfileContent.phone_number}
+        </Typography>
+        <Typography
+          variant="subtitle1"
+          align="center"
+          color="text.secondary"
+          component="p"
+        >
+          {userProfileContent.email}
+        </Typography>
+      </Box>
+      {/* End footer */}
+    </ThemeProvider>
+  );
 }

@@ -9,15 +9,18 @@ import {
   Typography,
   Container,
   CssBaseline,
+  InputLabel,
+  MenuItem,
+  FormControl,
+  Select,
+  TextareaAutosize
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { toast, ToastContainer } from "react-toastify";
-import InputLabel from "@mui/material/InputLabel";
-import MenuItem from "@mui/material/MenuItem";
-import FormControl from "@mui/material/FormControl";
-import Select from "@mui/material/Select";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
+import "react-toastify/dist/ReactToastify.css";
 
 import { adduser } from "../services/auth.service";
 
@@ -37,16 +40,17 @@ export function AddUser() {
     event.preventDefault();
     const formData = new FormData();
     formData.append("file", file[0]);
-    formData.append("file_name", file[0].name);
     const data = new FormData(event.currentTarget);
     formData.append("name", data.get("name"));
     formData.append("country_code", data.get("countryCode"));
     formData.append("phone_number", data.get("phoneNumber"));
     formData.append("email", data.get("email"));
+    formData.append("summary", data.get("summary"))
+    formData.append("password",data.get("password"))
     adduser(formData)
       .then((response) => {
         if (response.data.status) {
-          navigate("/profile");
+          navigate(`/verify/${response.data.data.email}`)
         } else {
           toast(response.data.message, {
             position: "top-right",
@@ -80,30 +84,12 @@ export function AddUser() {
             alignItems: "center",
           }}
         >
+          <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+            <LockOutlinedIcon />
+          </Avatar>
           <Typography component="h1" variant="h5">
             Create a New Account
           </Typography>
-          <Avatar
-            sx={{
-              m: 1,
-              bgcolor: "secondary.main",
-              height: "70px",
-              width: "70px",
-            }}
-          >
-            <Button variant="raised" component="label">
-              <CameraAltIcon />
-              <input
-                type="file"
-                name="profile_image"
-                id="profileImage"
-                onChange={handleFileSelect}
-                hidden
-                required
-                accept="image/png, image/jpeg"
-              />
-            </Button>
-          </Avatar>
           <Box
             component="form"
             noValidate
@@ -157,7 +143,7 @@ export function AddUser() {
                   name="email"
                 />
               </Grid>
-              {/* <Grid item xs={12}>
+              <Grid item xs={12}>
                 <TextField
                   required
                   fullWidth
@@ -166,7 +152,31 @@ export function AddUser() {
                   type="password"
                   id="password"
                 />
-              </Grid> */}
+              </Grid>
+              <Grid item xs={12}>
+                <TextareaAutosize
+                  placeholder="Profile Summary..."
+                  style={{ width: 400, height: 150, overflow: "scroll" }}
+                  id="summary"
+                  label="Summary"
+                  name="summary"
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Button variant="outlined" component="label" color="primary">
+                  {" "}
+                  <CameraAltIcon /> Upload Photo
+                  <input
+                    type="file"
+                    name="profile_image"
+                    id="profileImage"
+                    onChange={handleFileSelect}
+                    hidden
+                    required
+                    accept="image/png, image/jpeg"
+                  />
+                </Button>
+              </Grid>
             </Grid>
             <Button
               type="submit"
@@ -178,7 +188,7 @@ export function AddUser() {
             </Button>
             <Grid container justifyContent="center">
               <Grid item>
-                <Link href="/profile" variant="body2">
+                <Link href="/signin" variant="body2">
                   Already have an account?
                 </Link>
               </Grid>
