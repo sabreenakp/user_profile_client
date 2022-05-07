@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   Avatar,
   Box,
+  Button,
   Typography,
   Container,
   CssBaseline,
@@ -11,15 +12,20 @@ import {
 } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
 import { toast } from "react-toastify";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
-import { fetchuser } from "../services/auth.service";
+import { fetchuser } from "../services/user.service";
 
 const theme = createTheme();
 
 export function UserProfile() {
+  const navigate = useNavigate();
   const { id } = useParams();
   const [userProfileContent, setUserProfileContent] = useState("");
+  const logout = () => {
+    localStorage.clear()
+    navigate("/signin");
+  };
   const getUserProfile = () => {
     fetchuser(id)
       .then((response) => {
@@ -48,16 +54,29 @@ export function UserProfile() {
 
   useEffect(() => {
     getUserProfile();
-  }, []);
+  });
 
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <AppBar position="relative">
         <Toolbar>
-          <Typography variant="h6" color="inherit" noWrap></Typography>
+          <Typography variant="h6" color="inherit" noWrap>
+            My Profile
+          </Typography>
+          <Box sx={{ flexGrow: 1 }} />
+          <Box
+            sx={{
+              display: { xs: "none", md: "flex", gap: 10, marginRight: 20 },
+            }}
+          >
+            <Button color="inherit" onClick={logout}>
+              Logout
+            </Button>
+          </Box>
         </Toolbar>
       </AppBar>
+
       <main>
         {/* Hero unit */}
         <Box
@@ -107,7 +126,7 @@ export function UserProfile() {
         </Box>
       </main>
       {/* Footer */}
-      <Box sx={{ bgcolor: 'background.paper', p: 6 }} component="footer">
+      <Box sx={{ bgcolor: "background.paper", p: 6 }} component="footer">
         <Typography variant="h6" align="center" gutterBottom>
           Contact Info
         </Typography>
@@ -117,7 +136,8 @@ export function UserProfile() {
           color="text.secondary"
           component="p"
         >
-          {userProfileContent.country_code}{userProfileContent.phone_number}
+          {userProfileContent.country_code}
+          {userProfileContent.phone_number}
         </Typography>
         <Typography
           variant="subtitle1"

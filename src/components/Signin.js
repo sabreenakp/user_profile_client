@@ -31,6 +31,9 @@ export function SignIn() {
     signin(userData)
       .then((response) => {
         if (response.data.status) {
+          const token = JSON.stringify(response.data.data.token);
+          localStorage.setItem("auth", token);
+          localStorage.setItem("_id", response.data.data._id);
           navigate(`/profile/${response.data.data._id}`);
         } else {
           toast(response.data.message, {
@@ -110,7 +113,7 @@ export function SignIn() {
               </Button>
               <Grid container>
                 <Grid item>
-                  <Link href="/" variant="body2">
+                  <Link href="/signup" variant="body2">
                     {"Don't have an account? Sign Up"}
                   </Link>
                 </Grid>
