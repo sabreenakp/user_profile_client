@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState } from "react";
 import {
   Avatar,
   Button,
@@ -13,7 +13,8 @@ import {
   MenuItem,
   FormControl,
   Select,
-  TextareaAutosize
+  TextareaAutosize,
+  CircularProgress,
 } from "@mui/material";
 import { useNavigate } from "react-router-dom";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -28,29 +29,50 @@ const theme = createTheme();
 
 export function AddUser() {
   const navigate = useNavigate();
-  const [country_code, setCountryCode] = React.useState("");
-  const handleChange = (event) => {
+  const [loading, setLoading] = useState(false);
+  const [name, setName] = useState("");
+  const handleChangeName = (event) => {
+    setName(event.target.value);
+  };
+  const [country_code, setCountryCode] = useState("");
+  const handleChangeCode = (event) => {
     setCountryCode(event.target.value);
   };
-  const [file, setFile] = React.useState(null);
+  const [phone_number, setPhoneNumber] = useState("");
+  const handleChangePhone = (event) => {
+    setPhoneNumber(event.target.value);
+  };
+  const [email, setEmail] = useState("");
+  const handleChangeEmail = (event) => {
+    setEmail(event.target.value);
+  };
+  const [summary, setSummary] = useState("");
+  const handleChangeSummary = (event) => {
+    setSummary(event.target.value);
+  };
+  const [password, setPassword] = useState("");
+  const handleChangePassword = (event) => {
+    setPassword(event.target.value);
+  };
+  const [file, setFile] = useState(null);
   const handleFileSelect = (event) => {
     setFile(event.target.files);
   };
   const handleSubmit = (event) => {
     event.preventDefault();
+    setLoading(true);
     const formData = new FormData();
     formData.append("file", file[0]);
-    const data = new FormData(event.currentTarget);
-    formData.append("name", data.get("name"));
-    formData.append("country_code", data.get("countryCode"));
-    formData.append("phone_number", data.get("phoneNumber"));
-    formData.append("email", data.get("email"));
-    formData.append("summary", data.get("summary"))
-    formData.append("password",data.get("password"))
+    formData.append("name", name);
+    formData.append("country_code", country_code);
+    formData.append("phone_number",phone_number);
+    formData.append("email", email);
+    formData.append("summary", summary);
+    formData.append("password", password);
     adduser(formData)
       .then((response) => {
         if (response.data.status) {
-          navigate(`/verify/${response.data.data.email}`)
+          navigate(`/verify/${response.data.data.email}`);
         } else {
           toast(response.data.message, {
             position: "top-right",
@@ -60,8 +82,10 @@ export function AddUser() {
             type: "error",
           });
         }
+        setLoading(false);
       })
       .catch((error) => {
+        setLoading(false);
         toast(error.message, {
           position: "top-right",
           autoClose: 3000,
@@ -90,6 +114,11 @@ export function AddUser() {
           <Typography component="h1" variant="h5">
             Create a New Account
           </Typography>
+          {loading ? (
+          <Box sx={{ display: "flex" }}>
+            <CircularProgress />
+          </Box>
+        ) : null}
           <Box
             component="form"
             noValidate
@@ -105,6 +134,8 @@ export function AddUser() {
                   fullWidth
                   id="name"
                   label="Name"
+                  value={name}
+                  onChange={handleChangeName}
                 />
               </Grid>
               <Grid item xs={12} sm={4}>
@@ -115,7 +146,7 @@ export function AddUser() {
                     label="Country"
                     name="countryCode"
                     value={country_code}
-                    onChange={handleChange}
+                    onChange={handleChangeCode}
                     required
                   >
                     <MenuItem value={"+1"}>+1</MenuItem>
@@ -132,6 +163,8 @@ export function AddUser() {
                   id="phoneNumber"
                   label="Phone Number"
                   name="phoneNumber"
+                  value={phone_number}
+                  onChange={handleChangePhone}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -141,6 +174,8 @@ export function AddUser() {
                   id="email"
                   label="Email Address"
                   name="email"
+                  value={email}
+                  onChange={handleChangeEmail}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -151,6 +186,8 @@ export function AddUser() {
                   label="Password"
                   type="password"
                   id="password"
+                  value={password}
+                  onChange={handleChangePassword}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -160,6 +197,8 @@ export function AddUser() {
                   id="summary"
                   label="Summary"
                   name="summary"
+                  value={summary}
+                  onChange={handleChangeSummary}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -183,6 +222,7 @@ export function AddUser() {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              disabled={!file || !name || !email || !country_code || !phone_number || !password}
             >
               Sign Up
             </Button>

@@ -11,8 +11,9 @@ import {
   Toolbar,
 } from "@mui/material";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { useNavigate, useParams } from "react-router-dom";
+import "react-toastify/dist/ReactToastify.css";
 
 import { fetchuser } from "../services/user.service";
 
@@ -23,7 +24,7 @@ export function UserProfile() {
   const { id } = useParams();
   const [userProfileContent, setUserProfileContent] = useState("");
   const logout = () => {
-    localStorage.clear()
+    localStorage.clear();
     navigate("/signin");
   };
   const getUserProfile = () => {
@@ -53,11 +54,14 @@ export function UserProfile() {
   };
 
   useEffect(() => {
-    getUserProfile();
-  });
+    setTimeout(() => {
+      getUserProfile();
+    }, 1000);
+  }, []);
 
   return (
     <ThemeProvider theme={theme}>
+      <ToastContainer />
       <CssBaseline />
       <AppBar position="relative">
         <Toolbar>
@@ -111,6 +115,7 @@ export function UserProfile() {
               align="center"
               color="text.primary"
               gutterBottom
+              style={{ color: "black", textTransform: "capitalize" }}
             >
               {userProfileContent.name}
             </Typography>
@@ -119,6 +124,7 @@ export function UserProfile() {
               align="center"
               color="text.secondary"
               paragraph
+              style={{ textTransform: "capitalize" }}
             >
               {userProfileContent.summary}
             </Typography>

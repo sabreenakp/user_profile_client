@@ -1,4 +1,4 @@
-import React from "react";
+import { useState } from "react";
 import {
   Avatar,
   Button,
@@ -9,11 +9,13 @@ import {
   Box,
   Grid,
   Typography,
+  CircularProgress,
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
-import { toast } from "react-toastify";
+import { toast, ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import "react-toastify/dist/ReactToastify.css";
 
 import { signin } from "../services/auth.service";
 
@@ -21,12 +23,21 @@ const theme = createTheme();
 
 export function SignIn() {
   const navigate = useNavigate();
+  const [loading, setLoading] = useState(false);
+  const [email, setEmail] = useState("");
+  const handleChangeEmail = (event) => {
+    setEmail(event.target.value);
+  };
+  const [password, setPassword] = useState("");
+  const handleChangePassword = (event) => {
+    setPassword(event.target.value);
+  };
   const handleSubmit = (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
+    setLoading(true);
     let userData = {
-      email: data.get("email"),
-      password: data.get("password")
+      email: email,
+      password: password,
     };
     signin(userData)
       .then((response) => {
@@ -44,8 +55,10 @@ export function SignIn() {
             type: "error",
           });
         }
+        setLoading(false);
       })
       .catch((error) => {
+        setLoading(false);
         toast(error.message, {
           position: "top-right",
           autoClose: 3000,
@@ -58,6 +71,7 @@ export function SignIn() {
 
   return (
     <ThemeProvider theme={theme}>
+      <ToastContainer />
       <Grid container component="main" sx={{ height: "100vh" }}>
         <CssBaseline />
 
@@ -77,6 +91,11 @@ export function SignIn() {
             <Typography component="h1" variant="h5">
               Sign in
             </Typography>
+            {loading ? (
+              <Box sx={{ display: "flex" }}>
+                <CircularProgress />
+              </Box>
+            ) : null}
             <Box
               component="form"
               noValidate
@@ -92,6 +111,8 @@ export function SignIn() {
                 name="email"
                 autoComplete="email"
                 autoFocus
+                value={email}
+                onChange={handleChangeEmail}
               />
               <TextField
                 margin="normal"
@@ -102,12 +123,15 @@ export function SignIn() {
                 type="password"
                 id="password"
                 autoComplete="current-password"
+                value={password}
+                onChange={handleChangePassword}
               />
               <Button
                 type="submit"
                 fullWidth
                 variant="contained"
                 sx={{ mt: 3, mb: 2 }}
+                disabled={!email || !password}
               >
                 Sign In
               </Button>

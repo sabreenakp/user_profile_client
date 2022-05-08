@@ -1,4 +1,4 @@
-import * as React from "react";
+import { useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import {
   Avatar,
@@ -9,6 +9,7 @@ import {
   Typography,
   Container,
   CssBaseline,
+  CircularProgress,
 } from "@mui/material";
 import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 import { createTheme, ThemeProvider } from "@mui/material/styles";
@@ -20,14 +21,19 @@ import { confirmUserSignUp } from "../services/auth.service";
 const theme = createTheme();
 
 export function ConfirmSignUp() {
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const { email } = useParams();
+  const [code, setCode] = useState("");
+  const handleChangeCode = (event) => {
+    setCode(event.target.value);
+  };
   const handleSubmit = (event) => {
     event.preventDefault();
-    const data = new FormData(event.currentTarget);
+    setLoading(true);
     let userData = {
       email: email,
-      code: data.get("code"),
+      code: code,
     };
     confirmUserSignUp(userData)
       .then((response) => {
@@ -42,8 +48,10 @@ export function ConfirmSignUp() {
             type: "error",
           });
         }
+        setLoading(false);
       })
       .catch((error) => {
+        setLoading(false);
         toast(error.message, {
           position: "top-right",
           autoClose: 3000,
@@ -73,6 +81,11 @@ export function ConfirmSignUp() {
           <Typography component="h1" variant="h5">
             Verify Account
           </Typography>
+          {loading ? (
+            <Box sx={{ display: "flex" }}>
+              <CircularProgress />
+            </Box>
+          ) : null}
           <Grid
             container
             justifyContent="center"
@@ -99,6 +112,8 @@ export function ConfirmSignUp() {
                   label="Verfication Code"
                   type="code"
                   id="code"
+                  value={code}
+                  onChange={handleChangeCode}
                 />
               </Grid>
             </Grid>
@@ -107,6 +122,7 @@ export function ConfirmSignUp() {
               fullWidth
               variant="contained"
               sx={{ mt: 3, mb: 2 }}
+              disabled={!code}
             >
               Send Code
             </Button>
